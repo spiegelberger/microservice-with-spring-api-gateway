@@ -29,15 +29,15 @@ import photoapp.api.users.ui.model.LoginRequestModel;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 	
 	private UserService userService;
-	private Environment environment;
+	private Environment env;
 	AuthenticationManager authenticationManager;
 	
 	
 	@Autowired
-	public AuthenticationFilter(UserService userService, Environment environment,
+	public AuthenticationFilter(UserService userService, Environment env,
 								AuthenticationManager authenticationManager) {
 		this.userService = userService;
-		this.environment = environment;
+		this.env = env;
 		super.setAuthenticationManager(authenticationManager);
 	}
 
@@ -74,8 +74,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 		String token = Jwts.builder()
 				.setSubject(userDetails.getUserId())
 				.setExpiration(new Date(System.currentTimeMillis() + 
-						Long.parseLong(environment.getProperty("token.expiration_time"))))
-				.signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
+						Long.parseLong(env.getProperty("token.expiration_time"))))
+				.signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
 				.compact();
 		
 		// return the token and public userId in the response header
