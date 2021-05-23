@@ -16,28 +16,35 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
+import photoapp.api.users.data.AlbumsServiceClient;
 import photoapp.api.users.data.UserEntity;
 import photoapp.api.users.data.UsersRepository;
 import photoapp.api.users.shared.UserDto;
 import photoapp.api.users.ui.model.AlbumResponseModel;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService{
 	
 	UsersRepository userRepository;
 	BCryptPasswordEncoder encoder;
-	RestTemplate restTemplate;
 	Environment env;
+	AlbumsServiceClient albumsServiceClient;
+	//RestTemplate restTemplate;
 	
 	@Autowired
 	public UserServiceImpl(UsersRepository userRepository, BCryptPasswordEncoder encoder,
-							RestTemplate restTemplate, Environment env) {
+							 Environment env, AlbumsServiceClient albumsServiceClient
+							 //RestTemplate restTemplate
+							 ) {
 		this.userRepository = userRepository;
 		this.encoder = encoder;
-		this.restTemplate = restTemplate;
 		this.env = env;
+		this.albumsServiceClient = albumsServiceClient;
+		//this.restTemplate = restTemplate;
 	}
 
 
@@ -99,13 +106,17 @@ public class UserServiceImpl implements UserService{
 		UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 		
 //	    Use these lines with RestTemplate:	
-		String albumsUrl = String.format(env.getProperty("albums.url"), userId);
+/*		String albumsUrl = String.format(env.getProperty("albums.url"), userId);
 		
 		ResponseEntity<List<AlbumResponseModel>>albumsListResponse = restTemplate
 				  		  .exchange(albumsUrl, HttpMethod.GET, null, 
 						  new ParameterizedTypeReference<List<AlbumResponseModel>>() {					  
 				  });
 		List<AlbumResponseModel>albumList =albumsListResponse.getBody();
+*/
+
+//		And this line with Feign Client:
+		List<AlbumResponseModel> albumList = albumsServiceClient.getAlbums(userId);
 		
 		userDto.setAlbums(albumList);
 		
