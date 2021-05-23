@@ -115,8 +115,10 @@ public class UserServiceImpl implements UserService{
 		List<AlbumResponseModel>albumList =albumsListResponse.getBody();
 */
 
+		log.info("BEFORE calling Albums Ms");
 //		And this line with Feign Client:
 		List<AlbumResponseModel> albumList = albumsServiceClient.getAlbums(userId);
+		log.info("AFTER calling Albums Ms");
 		
 		userDto.setAlbums(albumList);
 		
